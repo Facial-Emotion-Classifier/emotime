@@ -57,6 +57,8 @@ namespace emotime {
    * @return  A string representation
    */
   std::string emotionStrings(Emotion emo);
+  
+  std::string emotionToEmoji(Emotion emo);
 
   /**
    * @class   EmoDetector
