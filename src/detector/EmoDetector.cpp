@@ -51,6 +51,21 @@ namespace emotime {
     }
   };
 
+  string emotionStrings(Emotion emo){
+    switch (emo) {
+      case NEUTRAL: return string(":|");
+      case ANGER: return string(">:(");
+      case CONTEMPT: return string(">:/");
+      case DISGUST: return string("D:<");
+      case FEAR: return string("D:");
+      case HAPPY: return string(":)");
+      case SADNESS: return string(":(");
+      case SURPRISE: return string(":O");
+      case OTHERS: return string(":s");
+      default: return string("(:(");
+    }
+  };
+
   void EmoDetector::init(const std::map<std::string, std::pair<std::vector<Emotion>, Classifier*> >& detmap_ext) {
     this->detectors_ext = detmap_ext;
 
