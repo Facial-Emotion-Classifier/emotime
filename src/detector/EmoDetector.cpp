@@ -51,7 +51,7 @@ namespace emotime {
     }
   };
 
-  string emotionStrings(Emotion emo){
+  string emotionToEmoji(Emotion emo){
     switch (emo) {
       case NEUTRAL: return string(":|");
       case ANGER: return string(">:(");
