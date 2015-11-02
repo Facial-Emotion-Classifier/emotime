@@ -32,7 +32,7 @@ namespace emotime{
     string osd = ss.str();
     string osd2 = ss2.str();
     
-    std::cout << emotionStrings(prediction.first) << "\n" << std::flush;
+    std::cout << emotionToEmoji(prediction.first) << "\n" << std::flush;
 
     cv::putText(frame, osd.c_str(), Point(20,60), FONT_HERSHEY_SIMPLEX, 0.7, Scalar::all(255));
     cv::putText(frame, osd2.c_str(), Point(20,100), FONT_HERSHEY_SIMPLEX, 0.7, Scalar::all(255));
