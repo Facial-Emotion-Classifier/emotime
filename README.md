@@ -65,6 +65,20 @@ Compiling on linux:
 
 Cross-compiling for windows:
 
+install opencv 2.4.9
+install cmake 3.3.2
+install visual studio community 2015
+
+copy the include folder from opencv/build into opencv/build/x86/lib/ so it matches the description below
+
+open cmake-gui, set the first box to be the emotime root, the second emotime root build. then configure/generate. set opencv dir to the lib folder with the include inside that you just made.
+
+then it will generate a vcxproj file called ALL_BUILD in emotime/build. open that with visual studio
+
+with any luck you should be able to build the "release" target in visual studio.
+
+if the platform target (next to release) is x86, you need to redo all the cmake/opencv settings to be the x64 instead of x86 folder (re-copy the includes, edit the cmake field).
+
 * Using CMake or CMakeGUI, select emotime as source folder and configure.
 * If it complains about setting the variable `OpenCV_DIR` set it to the appropriate path so that:
   - C:/path/to/opencv/dir/ contains the libraries (`*.lib`)
