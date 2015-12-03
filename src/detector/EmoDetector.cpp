@@ -16,6 +16,7 @@
 #include <map>
 #include <utility>
 #include <limits>
+#include <omp.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -240,7 +241,7 @@ namespace emotime {
     if (detectors_ext.size() == 0) {
       return make_pair(UNKNOWN, 0.0f);
     }
-
+    #pragma omp parallel for
     for (map<string, pair<vector<Emotion>, Classifier*> >::iterator ii =
         this->detectors_ext.begin(); ii != this->detectors_ext.end(); ++ii) {
 
