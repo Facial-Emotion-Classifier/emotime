@@ -16,10 +16,11 @@ using cv::Mat;
 using cv::Point;
 using cv::Size;
 using cv::Rect;
-using cv::CascadeClassifier;
+
 
 using std::string;
 using std::vector;
+
 
 namespace emotime {
 
@@ -59,12 +60,26 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
-    vector<Rect> faces;
+    //vector<Rect> faces;
+    GpuMat gfaces;
     // detect faces
     assert(!cascade_f.empty());
     this->faceMinSize.height = img.rows / 3;
     this->faceMinSize.width = img.cols / 4;
-    cascade_f.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, this->faceMinSize );
+    Mat frame_gray;
+    GpuMat objBuf;
+
+    cvtColor( img, frame_gray, CV_BGR2GRAY );
+    equalizeHist( frame_gray, frame_gray );
+    GpuMat gray_gpu(frame_gray);
+    int detect_num = cascade_f.detectMultiScale(gray_gpu, objBuf, 1.1, 2, this->faceMinSize );
+    Mat obj_host;
+    gfaces.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
+
+    Rect* shrekt = obj_host.ptr<Rect>();
+    std::vector<Rect> faces(shrekt, shrekt + sizeof shrekt / sizeof shrekt[0]);
+
+
 
     if (faces.size() == 0){
       return false;
@@ -89,12 +104,25 @@ namespace emotime {
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
-    vector<Rect> eyes;
+    //vector<Rect> eyes;
+    GpuMat gEyes;
     // detect faces
     assert(!cascade_e.empty());
     // Min widths and max width are taken from eyes proportions
-    cascade_e.detectMultiScale(img, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE,
+    Mat frame_gray;
+    GpuMat objBuf;
+
+    cvtColor( img, frame_gray, CV_BGR2GRAY );
+    equalizeHist( frame_gray, frame_gray );
+    GpuMat gray_gpu(frame_gray);
+    int detect_num = cascade_e.detectMultiScale(gray_gpu, objBuf, 1.1, 2,
         Size(img.size().width/5, img.size().width/(5*2)));
+    Mat obj_host;
+    gEyes.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
+
+
+    Rect* demEyesDoRoll = obj_host.ptr<Rect>();
+    std::vector<Rect> eyes(demEyesDoRoll, demEyesDoRoll + sizeof demEyesDoRoll / sizeof demEyesDoRoll[0]);
 
     if (eyes.size() < 2) {
       eyes.clear();

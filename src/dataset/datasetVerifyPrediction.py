@@ -6,6 +6,7 @@ import datasetConfigParser as dcp
 import os
 import subprocess
 import re
+import time
 
 from subprocess import PIPE
 
@@ -60,6 +61,9 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
       config['GABOR_NTHETAS']] + classificators
 
   res_reg =  re.compile("predicted: (\w*) with score (.*)")
+
+  t0 = time.time()
+
   for emo in os.listdir(faces_dir):
     emo_dir = os.path.join(faces_dir, emo)
 
@@ -74,6 +78,9 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
     p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     out = p.communicate(input=faces)
     results[emo] = re.findall(res_reg, out[0])
+  t1 = time.time()
+
+  print "ok gurjit ", t1 - t0
 
   if do_prints:
     print ""

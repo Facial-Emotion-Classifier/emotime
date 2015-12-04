@@ -15,6 +15,15 @@
 //#define TRAINING_BUILD
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/gpu/gpu.hpp>
+
+using cv::gpu::CascadeClassifier_GPU;
+using namespace cv::gpu;
 
 namespace emotime {
 
@@ -92,9 +101,9 @@ namespace emotime {
     protected:
 
       /// Cascade classifier for face
-      cv::CascadeClassifier cascade_f;
+      cv::gpu::CascadeClassifier_GPU cascade_f;
       /// Cascade classifier for eyes
-      cv::CascadeClassifier cascade_e;
+      cv::gpu::CascadeClassifier_GPU cascade_e;
       /// Minimum size of the face
       cv::Size faceMinSize;
       /// Perform the eye rotation?
