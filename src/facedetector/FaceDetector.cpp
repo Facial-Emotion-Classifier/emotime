@@ -43,12 +43,8 @@ namespace emotime {
       this->faceMinSize=Size(60,60);
     }
 
-    if (!cascade_f.load(face_config_file)) {
-      cerr << "Failed to load Cascade file" << endl;
-    }
     cout << "CUDA Device Count: " << getCudaEnabledDeviceCount() << endl;
     if (eye_config_file != string("none") && eye_config_file != string("")) {
-      cascade_e.load(eye_config_file);
       assert(!cascade_e.empty());
       this->doEyesRot = true;
     } else {
@@ -59,7 +55,7 @@ namespace emotime {
   }
 
   FaceDetector::FaceDetector(std::string face_config_file) {
-    cascade_f.load(face_config_file);
+    this->face_config_file = face_config_file;
     this->doEyesRot = false;
     assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
@@ -76,7 +72,6 @@ namespace emotime {
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
     cv::gpu::CascadeClassifier_GPU cascade_f2;
     cascade_f2.load(this->face_config_file);
-    double t0 = timestamp();
     GpuMat gfaces;
     assert(!cascade_f2.empty());
     this->faceMinSize.height = img.rows / 3;
@@ -85,7 +80,9 @@ namespace emotime {
     equalizeHist(img, img);
 
     // Find Faces
+    double t0 = timestamp();
     int detect_num = cascade_f2.detectMultiScale(gray_gpu, gfaces, 1.1, 2, this->faceMinSize );
+    cout << " detectFace " << timestamp() - t0 << " " << endl;
 
     Mat obj_host;
     gfaces.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
@@ -112,14 +109,12 @@ namespace emotime {
     face.height = shrekt[maxI].height;
     gfaces.release();
     gray_gpu.release();
-    cout << " detectFace " << timestamp() - t0 << " " << endl;
     return true;
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
     cv::gpu::CascadeClassifier_GPU cascade_e2;
     cascade_e2.load(this->eye_config_file);
-    double t0 = timestamp();
     GpuMat gEyes;
     assert(!cascade_e2.empty());
     // Min widths and max width are taken from eyes proportions
@@ -127,8 +122,11 @@ namespace emotime {
     equalizeHist( img, img );
 
     // Find Eyes
+    double t0 = timestamp();
     int detect_num = cascade_e2.detectMultiScale(gray_gpu, gEyes, 1.1, 2,
         Size(img.size().width/5, img.size().width/(5*2)));
+    cout << " detectEyes " << timestamp() - t0 << " " << endl;
+
 
     Mat obj_host;
     gEyes.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
@@ -185,7 +183,6 @@ namespace emotime {
     }
     gEyes.release();
     gray_gpu.release();
-    cout << " detectEyes " << timestamp() - t0 << " " << endl;
     return true;
   }
 
