@@ -9,8 +9,10 @@
  *
  */
 
+#include "timer.h"
 #include "FaceDetector.h"
 #include <math.h>
+#include <iostream>
 
 using cv::Mat;
 using cv::Point;
@@ -20,7 +22,7 @@ using cv::Rect;
 
 using std::string;
 using std::vector;
-
+using namespace std;
 
 namespace emotime {
 
@@ -60,6 +62,7 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
+    double t0 = timestamp();
     //vector<Rect> faces;
     GpuMat gfaces;
     // detect faces
@@ -69,7 +72,7 @@ namespace emotime {
     Mat frame_gray;
     GpuMat objBuf;
 
-    cvtColor( img, frame_gray, CV_BGR2GRAY );
+    //cvtColor( img, frame_gray, CV_BGR2GRAY );
     equalizeHist( frame_gray, frame_gray );
     GpuMat gray_gpu(frame_gray);
     int detect_num = cascade_f.detectMultiScale(gray_gpu, objBuf, 1.1, 2, this->faceMinSize );
@@ -100,10 +103,13 @@ namespace emotime {
     face.width = faces.at(maxI).width;
     face.height = faces.at(maxI).height;
     faces.clear();
+    cout << "detectFace " << timestamp()-t0;
     return true;
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
+    double t0 = timestamp();
+    cout << "detectEyestest";
     //vector<Rect> eyes;
     GpuMat gEyes;
     // detect faces
@@ -112,7 +118,7 @@ namespace emotime {
     Mat frame_gray;
     GpuMat objBuf;
 
-    cvtColor( img, frame_gray, CV_BGR2GRAY );
+    //cvtColor( img, frame_gray, CV_BGR2GRAY );
     equalizeHist( frame_gray, frame_gray );
     GpuMat gray_gpu(frame_gray);
     int detect_num = cascade_e.detectMultiScale(gray_gpu, objBuf, 1.1, 2,
@@ -175,6 +181,7 @@ namespace emotime {
       }
     }
     eyes.clear();
+    cout << "detectEyes " << timestamp()-t0;
     return true;
   }
 

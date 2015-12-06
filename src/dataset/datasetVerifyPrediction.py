@@ -63,7 +63,7 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
   res_reg =  re.compile("predicted: (\w*) with score (.*)")
 
   t0 = time.time()
-
+  times = ""
   for emo in os.listdir(faces_dir):
     emo_dir = os.path.join(faces_dir, emo)
 
@@ -74,16 +74,17 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
     faces = '\n'.join(faces_list)
     if do_prints:
       print "Predicting:", emo, "(%d faces)"%len(faces_list)
-
+    #print " ".join(args)
     p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     out = p.communicate(input=faces)
+    print out
     results[emo] = re.findall(res_reg, out[0])
   t1 = time.time()
 
   print "ok gurjit ", t1 - t0
-
+  print times
   if do_prints:
-    print ""
+    print results
   return results
 
 if __name__ == "__main__":
