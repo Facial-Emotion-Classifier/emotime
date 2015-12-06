@@ -5,6 +5,7 @@ IF (MSVC)
 ENDIF (MSVC)
 
 include_directories(${SRCDIR}/training)
+include_directories(${SRCDIR}/tools)
 include_directories(${SRCDIR}/facedetector)
 include_directories(${SRCDIR}/gaborbank)
 include_directories(${SRCDIR}/utils)
@@ -15,6 +16,7 @@ SET(EMOTIME_LIB_FILES "")
 SET(EMOTIME_H_FILES "")
 
 add_subdirectory(training)
+add_subdirectory(tools)
 add_subdirectory(facedetector)
 add_subdirectory(gaborbank)
 add_subdirectory(dataset)
@@ -38,13 +40,14 @@ add_library(emotime SHARED  facedetector/FaceDetector.cpp
                             gaborbank/GaborKernel.h
                             utils/matrix_io.cpp
                             utils/string_utils.cpp
+			    tools/timer.cpp
                                                   )
 
 target_link_libraries(emotime ${OpenCV_LIBS})
 
 INSTALL(TARGETS emotime DESTINATION ${ASSETDIR})
 
-INSTALL(FILES facedetector/FaceDetector.h
+INSTALL(FILES tools/timer.h facedetector/FaceDetector.h
                utils/matrix_io.h utils/string_utils.h
                gaborbank/GaborBank.h gaborbank/GaborKernel.h
                detector/EmoDetector.h detector/BoostEmoDetector.h detector/SVMEmoDetector.h detector/FacePreProcessor.h 

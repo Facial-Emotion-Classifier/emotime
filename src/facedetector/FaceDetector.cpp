@@ -11,12 +11,15 @@
 
 #include "FaceDetector.h"
 #include <math.h>
+#include "timer.h"
+#include <iostream>
 
 using cv::Mat;
 using cv::Point;
 using cv::Size;
 using cv::Rect;
 using cv::CascadeClassifier;
+using namespace std;
 
 using std::string;
 using std::vector;
@@ -59,6 +62,7 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
+    double t0 = timestamp();
     vector<Rect> faces;
     // detect faces
     assert(!cascade_f.empty());
@@ -85,10 +89,12 @@ namespace emotime {
     face.width = faces.at(maxI).width;
     face.height = faces.at(maxI).height;
     faces.clear();
+    cout << " detectFace " << timestamp() - t0 << " " << endl;
     return true;
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
+    double t0 = timestamp();
     vector<Rect> eyes;
     // detect faces
     assert(!cascade_e.empty());
@@ -147,6 +153,7 @@ namespace emotime {
       }
     }
     eyes.clear();
+    cout << " detectEyes " << timestamp() - t0 << " " << endl;
     return true;
   }
 

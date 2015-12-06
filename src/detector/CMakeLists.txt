@@ -12,6 +12,7 @@ add_executable(emo_detector_cli emo_detector_cli.cpp
                                 ../utils/matrix_io.cpp
                                 ../gaborbank/GaborBank.cpp
                                 ../utils/string_utils.cpp
+				../tools/timer.cpp
                                 ../facedetector/FaceDetector.cpp)
 
 target_link_libraries(emo_detector_cli ${OpenCV_LIBS} )
