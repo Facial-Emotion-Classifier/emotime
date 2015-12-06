@@ -11,12 +11,21 @@
 
 #include "FaceDetector.h"
 #include <math.h>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/gpu/gpu.hpp>
 
 using cv::Mat;
 using cv::Point;
 using cv::Size;
 using cv::Rect;
-
+using namespace std;
+using cv::gpu::CascadeClassifier_GPU;
 
 using std::string;
 using std::vector;
@@ -25,14 +34,18 @@ using std::vector;
 namespace emotime {
 
   FaceDetector::FaceDetector(std::string face_config_file, std::string eye_config_file){
-
+    this->face_config_file = face_config_file;
+    this->eye_config_file = eye_config_file;
     if (face_config_file.find(std::string("cbcl1"))!=std::string::npos){
       this->faceMinSize=Size(30,30);
     } else {
       this->faceMinSize=Size(60,60);
     }
 
-    cascade_f.load(face_config_file);
+    if (!cascade_f.load(face_config_file)) {
+      cerr << "Failed to load Cascade file" << endl;
+    }
+    cout << "CUDA Device Count: " << getCudaEnabledDeviceCount() << endl;
     if (eye_config_file != string("none") && eye_config_file != string("")) {
       cascade_e.load(eye_config_file);
       assert(!cascade_e.empty());
@@ -60,75 +73,67 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
-    //vector<Rect> faces;
+    cv::gpu::CascadeClassifier_GPU cascade_f2;
+    cascade_f2.load(this->face_config_file);
     GpuMat gfaces;
-    // detect faces
-    assert(!cascade_f.empty());
+    assert(!cascade_f2.empty());
     this->faceMinSize.height = img.rows / 3;
     this->faceMinSize.width = img.cols / 4;
-    Mat frame_gray;
-    GpuMat objBuf;
+    GpuMat gray_gpu(img);
+    equalizeHist(img, img);
 
-    cvtColor( img, frame_gray, CV_BGR2GRAY );
-    equalizeHist( frame_gray, frame_gray );
-    GpuMat gray_gpu(frame_gray);
-    int detect_num = cascade_f.detectMultiScale(gray_gpu, objBuf, 1.1, 2, this->faceMinSize );
+    // Find Faces
+    int detect_num = cascade_f2.detectMultiScale(gray_gpu, gfaces, 1.1, 2, this->faceMinSize );
+
     Mat obj_host;
     gfaces.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
-
     Rect* shrekt = obj_host.ptr<Rect>();
-    std::vector<Rect> faces(shrekt, shrekt + sizeof shrekt / sizeof shrekt[0]);
+    //cout << "Faces Found: " << detect_num << endl;
 
-
-
-    if (faces.size() == 0){
+    if (detect_num == 0){
       return false;
     }
     // Pick the face with maximum area
     unsigned int maxI=-1;
     int maxArea=-1;
     int area=-1;
-    for (unsigned int i=0;i<faces.size();i++){
-      area=faces.at(i).width*faces.at(i).height;
+    for (unsigned int i=0;i<detect_num;i++){
+      area=shrekt[i].width*shrekt[i].height;
       if (area>maxArea){
         maxI=i;
         maxArea=area;
       }
     }
-    face.x = faces.at(maxI).x;
-    face.y = faces.at(maxI).y;
-    face.width = faces.at(maxI).width;
-    face.height = faces.at(maxI).height;
-    faces.clear();
+    face.x = shrekt[maxI].x;
+    face.y = shrekt[maxI].y;
+    face.width = shrekt[maxI].width;
+    face.height = shrekt[maxI].height;
+    gfaces.release();
+    gray_gpu.release();
     return true;
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
-    //vector<Rect> eyes;
+    cv::gpu::CascadeClassifier_GPU cascade_e2;
+    cascade_e2.load(this->eye_config_file);
     GpuMat gEyes;
-    // detect faces
-    assert(!cascade_e.empty());
+    assert(!cascade_e2.empty());
     // Min widths and max width are taken from eyes proportions
-    Mat frame_gray;
-    GpuMat objBuf;
+    GpuMat gray_gpu(img);
+    equalizeHist( img, img );
 
-    cvtColor( img, frame_gray, CV_BGR2GRAY );
-    equalizeHist( frame_gray, frame_gray );
-    GpuMat gray_gpu(frame_gray);
-    int detect_num = cascade_e.detectMultiScale(gray_gpu, objBuf, 1.1, 2,
+    // Find Eyes
+    int detect_num = cascade_e2.detectMultiScale(gray_gpu, gEyes, 1.1, 2,
         Size(img.size().width/5, img.size().width/(5*2)));
+
     Mat obj_host;
     gEyes.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
-
-
+    //cout << "Number of eyes detected: " << detect_num << endl;
     Rect* demEyesDoRoll = obj_host.ptr<Rect>();
-    std::vector<Rect> eyes(demEyesDoRoll, demEyesDoRoll + sizeof demEyesDoRoll / sizeof demEyesDoRoll[0]);
 
-    if (eyes.size() < 2) {
-      eyes.clear();
+    if (detect_num < 2) {
       return false;
     }
-
     // Pick eyes with maximum area
     int val1=-1;
     int tmp=-1;
@@ -136,12 +141,12 @@ namespace emotime {
     Point tmpe;
     int val2=-1;
     int area=-1;
-    for (unsigned int i=0;i<eyes.size();i++){
-      x=eyes.at(i).x;
-      y=eyes.at(i).y;
-      w=eyes.at(i).width;
-      h=eyes.at(i).height;
-      area=eyes.at(i).width*eyes.at(i).height;
+    for (unsigned int i=0;i<detect_num;i++){
+      x=demEyesDoRoll[i].x;
+      y=demEyesDoRoll[i].y;
+      w=demEyesDoRoll[i].width;
+      h=demEyesDoRoll[i].height;
+      area=demEyesDoRoll[i].width*demEyesDoRoll[i].height;
       if (area>val1 && val1>val2){
         tmp=val1;
         tmpe.x=eye1.x;
@@ -174,7 +179,8 @@ namespace emotime {
         eye2.y=y+h/2;
       }
     }
-    eyes.clear();
+    gEyes.release();
+    gray_gpu.release();
     return true;
   }
 

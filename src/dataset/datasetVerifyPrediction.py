@@ -80,7 +80,7 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
     results[emo] = re.findall(res_reg, out[0])
   t1 = time.time()
 
-  print "ok gurjit ", t1 - t0
+  print "Benchmark Time: ", t1 - t0
 
   if do_prints:
     print ""
