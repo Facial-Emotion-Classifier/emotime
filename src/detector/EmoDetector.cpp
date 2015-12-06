@@ -241,7 +241,7 @@ namespace emotime {
     if (detectors_ext.size() == 0) {
       return make_pair(UNKNOWN, 0.0f);
     }
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (map<string, pair<vector<Emotion>, Classifier*> >::iterator ii =
         this->detectors_ext.begin(); ii != this->detectors_ext.end(); ++ii) {
 
