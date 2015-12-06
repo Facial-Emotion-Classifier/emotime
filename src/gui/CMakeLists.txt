@@ -9,7 +9,7 @@ add_executable(emotimevideodebug_cli emotimevideodebug_cli.cpp
         ../training/Classifier.cpp ../training/AdaBoostClassifier.cpp ../training/SVMClassifier.cpp
         ../facedetector/FaceDetector.cpp
         ../gaborbank/GaborBank.cpp
-        ../utils/string_utils.cpp ../utils/matrix_io.cpp )
+        ../utils/string_utils.cpp ../utils/matrix_io.cpp ../tools/timer.cpp )
 target_link_libraries(emotimevideodebug_cli  ${OpenCV_LIBS} )
 INSTALL(TARGETS emotimevideodebug_cli DESTINATION ${ASSETDIR} )
 
@@ -20,7 +20,7 @@ add_executable(emotimevideo_cli emotimevideo_cli.cpp
         ../training/Classifier.cpp ../training/AdaBoostClassifier.cpp ../training/SVMClassifier.cpp
         ../facedetector/FaceDetector.cpp
         ../gaborbank/GaborBank.cpp
-        ../utils/string_utils.cpp ../utils/matrix_io.cpp )
+        ../utils/string_utils.cpp ../utils/matrix_io.cpp ../tools/timer.cpp )
 target_link_libraries(emotimevideo_cli ${OpenCV_LIBS} )
 INSTALL(TARGETS emotimevideo_cli DESTINATION ${ASSETDIR} )
 
@@ -31,7 +31,7 @@ add_executable(emotimegui_cli emotimegui_cli.cpp
         ../training/Classifier.cpp ../training/AdaBoostClassifier.cpp ../training/SVMClassifier.cpp
         ../facedetector/FaceDetector.cpp
         ../gaborbank/GaborBank.cpp
-        ../utils/string_utils.cpp ../utils/matrix_io.cpp )
+        ../utils/string_utils.cpp ../utils/matrix_io.cpp ../tools/timer.cpp )
 target_link_libraries(emotimegui_cli ${OpenCV_LIBS} )
 INSTALL(TARGETS emotimegui_cli DESTINATION ${ASSETDIR} )
 

@@ -60,6 +60,7 @@ void banner(){
  *
  */
 int main( int argc, const char* argv[] ){
+	cout << "HELLO";
 	if (argc < 4) {
 		banner();
 		help();
@@ -89,7 +90,7 @@ int main( int argc, const char* argv[] ){
 		if (detector->detect(img, cropped)){
 		  matrix_io_save(cropped, outfile); 
     } else {
-      //cerr << "ERR: no face found.." << endl;
+      cerr << "ERR: no face found.." << endl;
       return 1;
     }
     delete detector;

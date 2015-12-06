@@ -63,7 +63,7 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
   res_reg =  re.compile("predicted: (\w*) with score (.*)")
 
   t0 = time.time()
-
+  times = ""
   for emo in os.listdir(faces_dir):
     emo_dir = os.path.join(faces_dir, emo)
 
@@ -74,17 +74,34 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
     faces = '\n'.join(faces_list)
     if do_prints:
       print "Predicting:", emo, "(%d faces)"%len(faces_list)
-
     p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     out = p.communicate(input=faces)
+    times += out[0]
     results[emo] = re.findall(res_reg, out[0])
   t1 = time.time()
 
   print "Benchmark Time: ", t1 - t0
 
+  parse_times(times)
   if do_prints:
-    print ""
+    print results
   return results
+
+def parse_times(output):
+  output = output.split(" ")
+  sumEyes = 0
+  numEyes = 0
+  sumFace = 0
+  numFace = 0
+  for i in range(output)
+    if output[i] == "detectEyes"
+      sumEyes += output[i+1]
+      numEyes += 1
+    if output[i] == "detectEyes"
+      sumEyes += output[i+1]
+      numEyes += 1
+  print "Seconds to find Eyes: " + sumEyes
+  print "Seconds to find Faces: " + sumFace
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

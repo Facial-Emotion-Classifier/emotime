@@ -9,9 +9,11 @@
  *
  */
 
+#include "timer.h"
 #include "FaceDetector.h"
 #include <math.h>
 #include <iostream>
+<<<<<<< HEAD
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/contrib/contrib.hpp>
@@ -19,6 +21,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/gpu/gpu.hpp>
+=======
+>>>>>>> cuda
 
 using cv::Mat;
 using cv::Point;
@@ -29,7 +33,7 @@ using cv::gpu::CascadeClassifier_GPU;
 
 using std::string;
 using std::vector;
-
+using namespace std;
 
 namespace emotime {
 
@@ -75,6 +79,7 @@ namespace emotime {
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
     cv::gpu::CascadeClassifier_GPU cascade_f2;
     cascade_f2.load(this->face_config_file);
+    double t0 = timestamp();
     GpuMat gfaces;
     assert(!cascade_f2.empty());
     this->faceMinSize.height = img.rows / 3;
@@ -110,12 +115,14 @@ namespace emotime {
     face.height = shrekt[maxI].height;
     gfaces.release();
     gray_gpu.release();
+    cout << " detectFace " << timestamp() - t0 << " " << endl;
     return true;
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
     cv::gpu::CascadeClassifier_GPU cascade_e2;
     cascade_e2.load(this->eye_config_file);
+    double t0 = timestamp();
     GpuMat gEyes;
     assert(!cascade_e2.empty());
     // Min widths and max width are taken from eyes proportions
@@ -181,6 +188,7 @@ namespace emotime {
     }
     gEyes.release();
     gray_gpu.release();
+    cout << " detectEyes " << timestamp() - t0 << " " << endl;
     return true;
   }
 
