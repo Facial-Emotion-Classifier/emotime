@@ -27,27 +27,23 @@ using std::vector;
 namespace emotime {
 
   FaceDetector::FaceDetector(std::string face_config_file, std::string eye_config_file){
-
+    this->face_config_file = face_config_file;
+    this->eye_config_file = eye_config_file;
     if (face_config_file.find(std::string("cbcl1"))!=std::string::npos){
       this->faceMinSize=Size(30,30);
     } else {
       this->faceMinSize=Size(60,60);
     }
 
-    cascade_f.load(face_config_file);
     if (eye_config_file != string("none") && eye_config_file != string("")) {
-      cascade_e.load(eye_config_file);
-      assert(!cascade_e.empty());
       this->doEyesRot = true;
     } else {
       this->doEyesRot = false;
     }
-    assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
   }
 
   FaceDetector::FaceDetector(std::string face_config_file) {
-    cascade_f.load(face_config_file);
     this->doEyesRot = false;
     assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
@@ -62,13 +58,17 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
-    double t0 = timestamp();
+    cv::CascadeClassifier cascade_f2;
+    cascade_f2.load(this->face_config_file);
     vector<Rect> faces;
     // detect faces
-    assert(!cascade_f.empty());
+    assert(!cascade_f2.empty());
     this->faceMinSize.height = img.rows / 3;
     this->faceMinSize.width = img.cols / 4;
-    cascade_f.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, this->faceMinSize );
+
+    double t0 = timestamp();
+    cascade_f2.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, this->faceMinSize );
+    cout << " detectFace " << timestamp() - t0 << " " << endl;
 
     if (faces.size() == 0){
       return false;
@@ -89,18 +89,21 @@ namespace emotime {
     face.width = faces.at(maxI).width;
     face.height = faces.at(maxI).height;
     faces.clear();
-    cout << " detectFace " << timestamp() - t0 << " " << endl;
     return true;
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
-    double t0 = timestamp();
+    cv::CascadeClassifier cascade_e2;
+    cascade_e2.load(this->eye_config_file);
     vector<Rect> eyes;
     // detect faces
-    assert(!cascade_e.empty());
+    assert(!cascade_e2.empty());
     // Min widths and max width are taken from eyes proportions
-    cascade_e.detectMultiScale(img, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE,
+
+    double t0 = timestamp();
+    cascade_e2.detectMultiScale(img, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE,
         Size(img.size().width/5, img.size().width/(5*2)));
+    cout << " detectEyes " << timestamp() - t0 << " " << endl;
 
     if (eyes.size() < 2) {
       eyes.clear();
@@ -153,7 +156,6 @@ namespace emotime {
       }
     }
     eyes.clear();
-    cout << " detectEyes " << timestamp() - t0 << " " << endl;
     return true;
   }
 
