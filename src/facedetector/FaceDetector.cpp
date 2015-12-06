@@ -45,19 +45,16 @@ namespace emotime {
 
     cout << "CUDA Device Count: " << getCudaEnabledDeviceCount() << endl;
     if (eye_config_file != string("none") && eye_config_file != string("")) {
-      assert(!cascade_e.empty());
       this->doEyesRot = true;
     } else {
       this->doEyesRot = false;
     }
-    assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
   }
 
   FaceDetector::FaceDetector(std::string face_config_file) {
     this->face_config_file = face_config_file;
     this->doEyesRot = false;
-    assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
   }
 
