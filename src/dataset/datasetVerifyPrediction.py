@@ -84,24 +84,20 @@ def dataset_do_prediction(dsfolder, config, mode, eye_detection, do_prints=True)
 
   parse_times(times)
   if do_prints:
-    print results
+    print ""
   return results
 
 def parse_times(output):
   output = output.split(" ")
-  sumEyes = 0
-  numEyes = 0
-  sumFace = 0
-  numFace = 0
-  for i in range(output)
-    if output[i] == "detectEyes"
-      sumEyes += output[i+1]
-      numEyes += 1
-    if output[i] == "detectEyes"
-      sumEyes += output[i+1]
-      numEyes += 1
-  print "Seconds to find Eyes: " + sumEyes
-  print "Seconds to find Faces: " + sumFace
+  sumEyes = 0.0
+  sumFace = 0.0
+  for i in range(len(output)):
+    if output[i] == "detectEyes":
+      sumEyes += float(output[i+1])
+    if output[i] == "detectFace":
+      sumFace += float(output[i+1])
+  print "Seconds to find Eyes: ", sumEyes
+  print "Seconds to find Faces: ", sumFace
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

@@ -133,12 +133,9 @@ int main(int argc, const char *argv[]) {
     while(std::getline(std::cin, infile)) {
       try {
         cout << "Processing '" << infile << "'" << endl;
-        cout << "test" << endl;
 		    Mat img = matrix_io_load(infile);
         Mat features;
-        cout << "before canpreprocess";
         bool canPreprocess = preprocessor->preprocess(img, features);
-        cout << "after canpreprocess";
         if (!canPreprocess) {
           cerr << "ERR: Cannot preprocess this image '" << infile << "'" << endl;
           continue;
