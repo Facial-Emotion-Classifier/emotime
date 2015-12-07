@@ -11,13 +11,11 @@
 
 #ifndef FACEDETECTOR_H_
 #define FACEDETECTOR_H_
-#include <string>
 
 //#define TRAINING_BUILD
 
 #include <opencv2/opencv.hpp>
 
-using std::string;
 
 namespace emotime {
 
@@ -93,8 +91,6 @@ namespace emotime {
       virtual bool detect(cv::Mat& img, cv::Mat& face);
 
     protected:
-      std::string face_config_file;
-      std::string eye_config_file;
       /// Cascade classifier for face
       cv::CascadeClassifier cascade_f;
       /// Cascade classifier for eyes

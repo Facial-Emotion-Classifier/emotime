@@ -27,23 +27,25 @@ using std::vector;
 namespace emotime {
 
   FaceDetector::FaceDetector(std::string face_config_file, std::string eye_config_file){
-    this->face_config_file = face_config_file;
-    this->eye_config_file = eye_config_file;
     if (face_config_file.find(std::string("cbcl1"))!=std::string::npos){
       this->faceMinSize=Size(30,30);
     } else {
       this->faceMinSize=Size(60,60);
     }
-
+    cascade_f.load(face_config_file);
     if (eye_config_file != string("none") && eye_config_file != string("")) {
+      cascade_e.load(eye_config_file);
+      assert(!cascade_e.empty());
       this->doEyesRot = true;
     } else {
       this->doEyesRot = false;
     }
+    assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
   }
 
   FaceDetector::FaceDetector(std::string face_config_file) {
+    cascade_f.load(face_config_file);
     this->doEyesRot = false;
     assert(!cascade_f.empty());
     this->clahe = cv::createCLAHE(kCLAHEClipLimit, kCLAHEGridSize);
@@ -58,16 +60,14 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
-    cv::CascadeClassifier cascade_f2;
-    cascade_f2.load(this->face_config_file);
     vector<Rect> faces;
     // detect faces
-    assert(!cascade_f2.empty());
+    assert(!cascade_f.empty());
     this->faceMinSize.height = img.rows / 3;
     this->faceMinSize.width = img.cols / 4;
 
     double t0 = timestamp();
-    cascade_f2.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, this->faceMinSize );
+    cascade_f.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, this->faceMinSize );
     cout << " detectFace " << timestamp() - t0 << " " << endl;
 
     if (faces.size() == 0){
@@ -93,15 +93,13 @@ namespace emotime {
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
-    cv::CascadeClassifier cascade_e2;
-    cascade_e2.load(this->eye_config_file);
     vector<Rect> eyes;
     // detect faces
-    assert(!cascade_e2.empty());
+    assert(!cascade_e.empty());
     // Min widths and max width are taken from eyes proportions
 
     double t0 = timestamp();
-    cascade_e2.detectMultiScale(img, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE,
+    cascade_e.detectMultiScale(img, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE,
         Size(img.size().width/5, img.size().width/(5*2)));
     cout << " detectEyes " << timestamp() - t0 << " " << endl;
 
