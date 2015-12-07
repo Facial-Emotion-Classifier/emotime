@@ -104,9 +104,9 @@ namespace emotime {
       std::string face_config_file;
       std::string eye_config_file;
       /// Cascade classifier for face
-      cv::gpu::CascadeClassifier_GPU cascade_f;
+      cv::gpu::CascadeClassifier_GPU cascade_f2;
       /// Cascade classifier for eyes
-      cv::gpu::CascadeClassifier_GPU cascade_e;
+      cv::gpu::CascadeClassifier_GPU cascade_e2;
       /// Minimum size of the face
       cv::Size faceMinSize;
       /// Perform the eye rotation?

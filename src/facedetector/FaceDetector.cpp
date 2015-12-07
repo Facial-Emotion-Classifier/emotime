@@ -35,10 +35,10 @@ using namespace std;
 namespace emotime {
 
   FaceDetector::FaceDetector(std::string face_config_file, std::string eye_config_file){
-    this->cv::gpu::CascadeClassifier_GPU cascade_f2;
+    this->cascade_f2 = cascade_f2;
     this->cascade_f2.load(face_config_file);
 
-    this->cv::gpu::CascadeClassifier_GPU cascade_e2;
+    this->cascade_e2 = cascade_e2;
     this->cascade_e2.load(eye_config_file);
     if (face_config_file.find(std::string("cbcl1"))!=std::string::npos){
       this->faceMinSize=Size(30,30);
