@@ -159,13 +159,19 @@ namespace emotime {
         #if defined(GABOR_DEBUG)
         std::cerr<<"INFO:bandw="<<bandwidth<<",slratio="<<slratio<<",lambda="<<_lambda<<",sigma="<<_sigma<<",ksize="<<2*n-1<<""<<std::endl;
         #endif
-
-        for (_theta = kGaborThetaMin; _theta < kGaborThetaMax;
-            _theta += (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas<=0?1:nthetas))) {
-          emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
-              _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
-          bank.push_back(kern);
+        \
+        /**** OPEN MP IMPLEMENTATION ****/
+        // Each image zone is independent and can be run on individual threads
+        #pragma omp parallel for
+        {
+          for (_theta = kGaborThetaMin; _theta < kGaborThetaMax;
+              _theta += (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas<=0?1:nthetas))) {
+            emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
+                _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
+            bank.push_back(kern);
+          }
         }
+        
       }
     }
   }
@@ -212,11 +218,18 @@ namespace emotime {
          std::cerr<<"INFO:lambda="<<_lambda<<",sigma="<<_sigma<<",ksize="<<fwidth<<""<<std::endl;
          #endif
          _theta=kGaborThetaMin;
-         for ( int _theta_c=0; _theta_c < (nthetas<=0?1:nthetas);
-               _theta += _theta_step, _theta_c++) {
-             emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
-                                          _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
-             bank.push_back(kern);
+
+         /**** OPEN MP IMPLEMENTATION ****/
+         // Each image zone is independent and can be run on individual threads
+         #pragma omp parallel for
+         {
+           /* code */
+          for ( int _theta_c=0; _theta_c < (nthetas<=0?1:nthetas);
+                _theta += _theta_step, _theta_c++) {
+              emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
+                                           _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
+              bank.push_back(kern);
+          }
          }
        }
      }
