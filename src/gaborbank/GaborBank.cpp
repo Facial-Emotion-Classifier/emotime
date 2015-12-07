@@ -10,6 +10,7 @@
  */
 
 #include "GaborBank.h"
+#include <omp.h>
 
 using std::max;
 using std::fabs;
@@ -69,7 +70,8 @@ namespace emotime {
     double ex = -0.5 / (sigma_x * sigma_x); 
     double ey = -0.5 / (sigma_y * sigma_y);
     double cscale = CV_PI * 2 / lambd;
-
+    
+    #pragma omp paralell for
     for (int y = ymin; y <= ymax; y++) {
       for (int x = xmin; x <= xmax; x++) {
         // rotating the gaussian envelope (xr,yr)
@@ -183,7 +185,6 @@ namespace emotime {
     int fwidth = minfwidth;
     
     double _theta_step = (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas<=0?1:nthetas));
-    
     for (fwidth = minfwidth; fwidth < maxfwidth; fwidth += (int)
         ((maxfwidth-minfwidth)/((double)(nwidths<=0?1:nwidths)))) {
       cv::Size kernelSize(fwidth, fwidth);
@@ -276,6 +277,7 @@ namespace emotime {
                  " and apply gabor filter bank"<<std::endl;
       #endif
       resize(image, image, featSize, CV_INTER_AREA);
+      #pragma omp parallel for
       for (unsigned int k = 0; k < bank.size(); k++) {
         emotime::GaborKernel * gk = bank.at(k);
         Mat real = gk->getReal();
