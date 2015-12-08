@@ -17,10 +17,13 @@
 #include <utility>
 #include <limits>
 #include <omp.h>
+#include "timer.h"
 
 #include <opencv2/opencv.hpp>
 
 #include "EmoDetector.h"
+
+using namespace std;
 
 using std::pair;
 using std::map;
@@ -164,7 +167,7 @@ namespace emotime {
     votes.insert(make_pair(HAPPY, 0.f));
     votes.insert(make_pair(FEAR, 0.f));
     votes.insert(make_pair(UNKNOWN, 0.f));
-
+    double t0 = timestamp();
     // for(map<string, pair<vector<Emotion>, Classifier*> >::iterator ii =
     //     this->detectors_ext.begin(); ii != this->detectors_ext.end(); ++ii) {
 
@@ -206,6 +209,7 @@ namespace emotime {
       for(vector<Emotion>::iterator emo_it = emo.begin(); emo_it != emo.end(); ++emo_it) {
         map<Emotion, float>::iterator it = votes.find(*emo_it);
         if (it == votes.end()) {
+          #pragma omp critical
           votes.insert(make_pair(*emo_it, prediction));
         } else{
           if (prediction > 0.5) {
@@ -223,7 +227,7 @@ namespace emotime {
         }
       }
     }
-
+    cout << " predict " << timestamp() - t0 << " ";
     pair<Emotion,float> max_pair = make_pair(UNKNOWN, numeric_limits<float>::min());
 
     for( map<Emotion, float>::iterator ii = votes.begin(); ii != votes.end();
