@@ -23,6 +23,21 @@ namespace emotime{
     //delete this->capture;
   }
 
+  string emoToPath(Emotion emo, string prefix) {
+	  switch (emo) {
+		  case NEUTRAL: return string(prefix + "neutral.png");
+		  case ANGER: return string(prefix + "anger.png");
+		  case CONTEMPT: return string(prefix + "contempt.png");
+		  case DISGUST: return string(prefix + "disgust.png");
+		  case FEAR: return string(prefix + "fear.png");
+		  case HAPPY: return string(prefix + "happy.png");
+		  case SADNESS: return string(prefix + "sadness.png");
+		  case SURPRISE: return string(prefix + "surprise.png");
+		  case OTHERS: return string(prefix + "others.png");
+		  default: return string(prefix + "unknown.png");
+	  }
+  }
+
   bool EmotimeGui::newFrame(Mat& frame, pair<Emotion, float> prediction) {
     Mat copy;
     frame.copyTo(copy);
@@ -38,10 +53,13 @@ namespace emotime{
     cv::putText(frame, osd2.c_str(), Point(20,100), FONT_HERSHEY_SIMPLEX, 0.7, Scalar::all(255));
 
     Mat emoji;
-    emoji = imread("images/emoji.png");
+	string path = emoToPath(prediction.first, "../src/gui/images/");
+
+    emoji = imread(path);
     /*emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));*/
-    resize(frame, emoji, Size(100, 100), 1);
-    emoji.copyTo(frame (Rect(100, 100, 100, 100)));
+    resize(emoji, emoji, Size(100, 100), 1);
+	cvtColor(emoji, emoji, CV_BGR2GRAY);
+    emoji.copyTo(frame (Rect(20, 140, 100, 100)));
 
     // QT only
     //displayOverlay(mainWinTitle.c_str(), osd.c_str(), 2000);
