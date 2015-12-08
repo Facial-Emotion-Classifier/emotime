@@ -39,7 +39,7 @@ INSTALL(TARGETS emotimegui_cli DESTINATION ${ASSETDIR} )
 add_executable(gaborgui_cli gaborgui_cli.cpp  
         ImageCapture.cpp ACapture.cpp GaborGui.hpp
         ../gaborbank/GaborBank.cpp
-        ../utils/string_utils.cpp ../utils/matrix_io.cpp )
+        ../utils/string_utils.cpp ../utils/matrix_io.cpp ../tools/timer.cpp )
 target_link_libraries(gaborgui_cli ${OpenCV_LIBS} )
 INSTALL(TARGETS gaborgui_cli DESTINATION ${ASSETDIR} )
 

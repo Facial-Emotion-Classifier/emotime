@@ -1,7 +1,8 @@
 
 find_package(OpenCV COMPONENTS opencv_core opencv_ml opencv_imgproc opencv_highgui opencv_objdetect REQUIRED)
 
-add_executable(emo_detector_cli emo_detector_cli.cpp 
+add_executable(emo_detector_cli ../tools/timer.cpp
+				emo_detector_cli.cpp 
                                 EmoDetector.cpp
                                 BoostEmoDetector.cpp
                                 SVMEmoDetector.cpp
@@ -12,7 +13,6 @@ add_executable(emo_detector_cli emo_detector_cli.cpp
                                 ../utils/matrix_io.cpp
                                 ../gaborbank/GaborBank.cpp
                                 ../utils/string_utils.cpp
-				../tools/timer.cpp
                                 ../facedetector/FaceDetector.cpp)
 
 target_link_libraries(emo_detector_cli ${OpenCV_LIBS} )
