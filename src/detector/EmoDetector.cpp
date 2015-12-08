@@ -17,10 +17,13 @@
 #include <utility>
 #include <limits>
 #include <omp.h>
+#include "timer.h"
 
 #include <opencv2/opencv.hpp>
 
 #include "EmoDetector.h"
+
+using namespace std;
 
 using std::pair;
 using std::map;
@@ -164,18 +167,49 @@ namespace emotime {
     votes.insert(make_pair(HAPPY, 0.f));
     votes.insert(make_pair(FEAR, 0.f));
     votes.insert(make_pair(UNKNOWN, 0.f));
+    double t0 = timestamp();
+    // for(map<string, pair<vector<Emotion>, Classifier*> >::iterator ii =
+    //     this->detectors_ext.begin(); ii != this->detectors_ext.end(); ++ii) {
 
-    for(map<string, pair<vector<Emotion>, Classifier*> >::iterator ii =
-        this->detectors_ext.begin(); ii != this->detectors_ext.end(); ++ii) {
+    //   vector<Emotion> emo = ii->second.first; // detected emotions
+    //   Classifier* cl = ii->second.second;
 
-      vector<Emotion> emo = ii->second.first; // detected emotions
-      Classifier* cl = ii->second.second;
+    //   float prediction = cl->predict(frame);
+
+    //   for(vector<Emotion>::iterator emo_it = emo.begin(); emo_it != emo.end(); ++emo_it) {
+    //     map<Emotion, float>::iterator it = votes.find(*emo_it);
+    //     if (it == votes.end()) {
+    //       votes.insert(make_pair(*emo_it, prediction));
+    //     } else{
+    //       if (prediction > 0.5) {
+    //         it->second += 0.5; //1.0;
+    //       } else {
+    //         //for(map<Emotion,float>::iterator votes_it = votes.begin(); votes_it != votes.end(); ++votes_it) {
+    //         //  vector<Emotion>::iterator e_it = find(emo.begin(), emo.end(), votes_it->first);
+    //         //  if (e_it == emo.end()) {
+    //         //    // if I dont find emotion in detected emotion
+    //         //    votes_it->second+=1.0;
+    //         //  }
+    //         //}
+    //         it->second -= 0.0;
+    //       }
+    //     }
+    //   }
+    // }
+
+    vector<pair<string, pair<vector<Emotion>, Classifier*> > > v(detectors_ext.begin(), detectors_ext.end());
+    #pragma omp parallel for
+    for(int y=0; y<v.size(); y++){
+      pair<string, pair<vector<Emotion>, Classifier*> > p = v[y];
+      vector<Emotion> emo = p.second.first; // detected emotions
+      Classifier* cl = p.second.second;
 
       float prediction = cl->predict(frame);
 
       for(vector<Emotion>::iterator emo_it = emo.begin(); emo_it != emo.end(); ++emo_it) {
         map<Emotion, float>::iterator it = votes.find(*emo_it);
         if (it == votes.end()) {
+          #pragma omp critical
           votes.insert(make_pair(*emo_it, prediction));
         } else{
           if (prediction > 0.5) {
@@ -193,7 +227,7 @@ namespace emotime {
         }
       }
     }
-
+    cout << " predict " << timestamp() - t0 << " ";
     pair<Emotion,float> max_pair = make_pair(UNKNOWN, numeric_limits<float>::min());
 
     for( map<Emotion, float>::iterator ii = votes.begin(); ii != votes.end();
