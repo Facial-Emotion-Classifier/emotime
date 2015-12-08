@@ -39,7 +39,9 @@ namespace emotime{
 
     Mat emoji;
     emoji = imread("images/emoji.png");
-    emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));
+    /*emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));*/
+    resize(frame, emoji, Size(100, 100), 1);
+    emoji.copyTo(frame (Rect(100, 100, 100, 100)));
 
     // QT only
     //displayOverlay(mainWinTitle.c_str(), osd.c_str(), 2000);
