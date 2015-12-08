@@ -241,7 +241,6 @@ namespace emotime {
     if (detectors_ext.size() == 0) {
       return make_pair(UNKNOWN, 0.0f);
     }
-    //#pragma omp parallel for
     // for (map<string, pair<vector<Emotion>, Classifier*> >::iterator ii =
     //     this->detectors_ext.begin(); ii != this->detectors_ext.end(); ++ii) {
 
@@ -261,17 +260,10 @@ namespace emotime {
     //   }
     // }
 
-    // pair<Emotion,float> max_pair = make_pair(UNKNOWN, numeric_limits<float>::min());
-    // for( map<Emotion, float>::iterator ii=votes.begin(); ii!=votes.end(); ++ii){
-    //   if (ii->second > max_pair.second){
-    //     max_pair.first=ii->first;
-    //     max_pair.second=ii->second;
-    //   }
-    // }
     vector<pair<string, pair<vector<Emotion>, Classifier*> > > v(detectors_ext.begin(), detectors_ext.end());
     #pragma omp parallel for
     for(int y=0; y<v.size(); y++){
-      pair<vector<Emotion>, Classifier*> > p = v[y]
+      pair<string, pair<vector<Emotion>, Classifier*> > p = v[y]
       if (p.second.first.size() != 1) {
         continue;
       }
