@@ -36,11 +36,11 @@ add_library(emotime SHARED  facedetector/FaceDetector.cpp
                             training/AdaBoostClassifier.cpp
                             training/SVMClassifier.cpp
                             detector/FacePreProcessor.cpp
+			    tools/timer.cpp
                             gaborbank/GaborBank.cpp
                             gaborbank/GaborKernel.h
                             utils/matrix_io.cpp
                             utils/string_utils.cpp
-			    tools/timer.cpp
                                                   )
 
 target_link_libraries(emotime ${OpenCV_LIBS})
@@ -48,7 +48,7 @@ target_link_libraries(emotime ${OpenCV_LIBS})
 INSTALL(TARGETS emotime DESTINATION ${ASSETDIR})
 
 INSTALL(FILES tools/timer.h facedetector/FaceDetector.h
-               utils/matrix_io.h utils/string_utils.h
+               utils/matrix_io.h utils/string_utils.h tools/timer.h
                gaborbank/GaborBank.h gaborbank/GaborKernel.h
                detector/EmoDetector.h detector/BoostEmoDetector.h detector/SVMEmoDetector.h detector/FacePreProcessor.h 
        DESTINATION "${HEADERDIR}")

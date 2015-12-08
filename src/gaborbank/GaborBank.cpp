@@ -11,12 +11,16 @@
 
 #include "GaborBank.h"
 #include <omp.h>
+#include "timer.h"
+#include <iostream>
 
 using std::max;
 using std::fabs;
 
 using cv::Size;
 using cv::Mat;
+
+using namespace std;
 
 namespace emotime {
 
@@ -70,25 +74,21 @@ namespace emotime {
     double ex = -0.5 / (sigma_x * sigma_x); 
     double ey = -0.5 / (sigma_y * sigma_y);
     double cscale = CV_PI * 2 / lambd;
-    
-    #pragma omp parallel for
-    {
-      for (int y = ymin; y <= ymax; y++) {
-        for (int x = xmin; x <= xmax; x++) {
-          // rotating the gaussian envelope (xr,yr)
-          double xr = x*c + y*s;   
-          double yr = -x*s + y*c;
-          double v_real = 0.0;
-          double v_img = 0.0;
-          v_real = scale * exp(ex * xr * xr + ey * yr * yr) * cos(cscale * xr + psi);
-          v_img = scale * exp(ex * xr * xr + ey * yr * yr) * sin(cscale * xr + psi);
-          if (ktype == CV_32F) {
-            kernel_real.at<float>(ymax - y, xmax - x) = (float) v_real;
-            kernel_img.at<float>(ymax - y, xmax - x) = (float) v_img;
-          } else {
-            kernel_real.at<double>(ymax - y, xmax - x) = v_real;
-            kernel_img.at<double>(ymax - y, xmax - x) = v_img;
-          }
+    for (int y = ymin; y <= ymax; y++) {
+      for (int x = xmin; x <= xmax; x++) {
+        // rotating the gaussian envelope (xr,yr)
+        double xr = x*c + y*s;   
+        double yr = -x*s + y*c;
+        double v_real = 0.0;
+        double v_img = 0.0;
+        v_real = scale * exp(ex * xr * xr + ey * yr * yr) * cos(cscale * xr + psi);
+        v_img = scale * exp(ex * xr * xr + ey * yr * yr) * sin(cscale * xr + psi);
+        if (ktype == CV_32F) {
+          kernel_real.at<float>(ymax - y, xmax - x) = (float) v_real;
+          kernel_img.at<float>(ymax - y, xmax - x) = (float) v_img;
+        } else {
+          kernel_real.at<double>(ymax - y, xmax - x) = v_real;
+          kernel_img.at<double>(ymax - y, xmax - x) = v_img;
         }
       }
     }
@@ -163,14 +163,11 @@ namespace emotime {
         #endif
         /**** OPEN MP IMPLEMENTATION ****/
         // Each image zone is independent and can be run on individual threads
-        #pragma omp parallel for
-        {
-          for (_theta = kGaborThetaMin; _theta < kGaborThetaMax;
-              _theta += (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas<=0?1:nthetas))) {
-            emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
-                _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
-            bank.push_back(kern);
-          }
+        for (_theta = kGaborThetaMin; _theta < kGaborThetaMax;
+            _theta += (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas <= 0? 1: nthetas))) {
+          emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
+              _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
+          bank.push_back(kern);
         }
         
       }
@@ -219,19 +216,12 @@ namespace emotime {
          std::cerr<<"INFO:lambda="<<_lambda<<",sigma="<<_sigma<<",ksize="<<fwidth<<""<<std::endl;
          #endif
          _theta=kGaborThetaMin;
-
-         /**** OPEN MP IMPLEMENTATION ****/
-         // Each image zone is independent and can be run on individual threads
-         #pragma omp parallel for
-         {
-           /* code */
-          for ( int _theta_c=0; _theta_c < (nthetas<=0?1:nthetas);
-                _theta += _theta_step, _theta_c++) {
-              emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
-                                           _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
-              bank.push_back(kern);
-          }
-         }
+        for ( int _theta_c=0; _theta_c < (nthetas<=0?1:nthetas);
+              _theta += _theta_step, _theta_c++) {
+            emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
+                                         _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
+            bank.push_back(kern);
+        }
        }
      }
    }
@@ -291,42 +281,42 @@ namespace emotime {
                  " and apply gabor filter bank"<<std::endl;
       #endif
       resize(image, image, featSize, CV_INTER_AREA);
-      #pragma omp parallel for 
-      {
-        for (unsigned int k = 0; k < bank.size(); k++) {
-          emotime::GaborKernel * gk = bank.at(k);
-          Mat real = gk->getReal();
-          Mat freal = Mat::zeros(image.size().height, image.size().width, type);
-          filter2D(image, freal, CV_32F, real);
-          #ifdef GABOR_ONLY_REAL
-          Mat scaled = freal;
-          #else
-          Mat imag = gk->getImag();
-          Mat fimag = Mat::zeros(image.size().height, image.size().width, type);
-          Mat magn  = Mat::zeros(image.size().height, image.size().width, type);
-          filter2D(image, fimag, CV_32F, imag);
-          pow(freal,2,freal);
-          pow(fimag,2,fimag);
-          add(fimag,freal,magn);
-          sqrt(magn,magn);
-          Mat scaled = magn;
-          #endif
-          #ifndef GABOR_SHRINK
-          //scaled.convertTo(scaled, type);
-          for (unsigned int i = 0; i<(unsigned int) featSize.height; i++) {
-            for (unsigned int j = 0; j<(unsigned int)featSize.width; j++) {
-              if (type == CV_32F){
-                dest.at<float>(i + (k * featSize.height), j) = scaled.at<float>(i,j);
-              } else if (type == CV_8U){
-                dest.at<uint8_t>(i + (k * featSize.height), j) = scaled.at<uint8_t>(i,j);
-              }
+      double t0 = timestamp();
+      #pragma omp parallel for
+      for (unsigned int k = 0; k < bank.size(); k++) {
+        emotime::GaborKernel * gk = bank.at(k);
+        Mat real = gk->getReal();
+        Mat freal = Mat::zeros(image.size().height, image.size().width, type);
+        filter2D(image, freal, CV_32F, real);
+        #ifdef GABOR_ONLY_REAL
+        Mat scaled = freal;
+        #else
+        Mat imag = gk->getImag();
+        Mat fimag = Mat::zeros(image.size().height, image.size().width, type);
+        Mat magn  = Mat::zeros(image.size().height, image.size().width, type);
+        filter2D(image, fimag, CV_32F, imag);
+        pow(freal,2,freal);
+        pow(fimag,2,fimag);
+        add(fimag,freal,magn);
+        sqrt(magn,magn);
+        Mat scaled = magn;
+        #endif
+        #ifndef GABOR_SHRINK
+        //scaled.convertTo(scaled, type);
+        for (unsigned int i = 0; i<(unsigned int) featSize.height; i++) {
+          for (unsigned int j = 0; j<(unsigned int)featSize.width; j++) {
+            if (type == CV_32F){
+              dest.at<float>(i + (k * featSize.height), j) = scaled.at<float>(i,j);
+            } else if (type == CV_8U){
+              dest.at<uint8_t>(i + (k * featSize.height), j) = scaled.at<uint8_t>(i,j);
             }
           }
-          #else
-          cv::max(scaled, tmp_dest, tmp_dest);
-          #endif
         }
+        #else
+        cv::max(scaled, tmp_dest, tmp_dest);
+        #endif
       }
+      cout << " gabor1 " << timestamp() - t0 << " ";
       #ifdef GABOR_SHRINK
       Mat tmp2_dest, thr, opened;
       tmp_dest.convertTo(tmp2_dest,CV_8U);
