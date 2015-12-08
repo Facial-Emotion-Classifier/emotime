@@ -11,12 +11,16 @@
 
 #include "GaborBank.h"
 #include <omp.h>
+#include "timer.h"
+#include <iostream>
 
 using std::max;
 using std::fabs;
 
 using cv::Size;
 using cv::Mat;
+
+using namespace std;
 
 namespace emotime {
 
@@ -70,8 +74,6 @@ namespace emotime {
     double ex = -0.5 / (sigma_x * sigma_x); 
     double ey = -0.5 / (sigma_y * sigma_y);
     double cscale = CV_PI * 2 / lambd;
-    
-    #pragma omp paralell for
     for (int y = ymin; y <= ymax; y++) {
       for (int x = xmin; x <= xmax; x++) {
         // rotating the gaussian envelope (xr,yr)
@@ -159,9 +161,8 @@ namespace emotime {
         #if defined(GABOR_DEBUG)
         std::cerr<<"INFO:bandw="<<bandwidth<<",slratio="<<slratio<<",lambda="<<_lambda<<",sigma="<<_sigma<<",ksize="<<2*n-1<<""<<std::endl;
         #endif
-
         for (_theta = kGaborThetaMin; _theta < kGaborThetaMax;
-            _theta += (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas<=0?1:nthetas))) {
+            _theta += (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas <= 0? 1: nthetas))) {
           emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
               _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
           bank.push_back(kern);
@@ -212,12 +213,12 @@ namespace emotime {
          std::cerr<<"INFO:lambda="<<_lambda<<",sigma="<<_sigma<<",ksize="<<fwidth<<""<<std::endl;
          #endif
          _theta=kGaborThetaMin;
-         for ( int _theta_c=0; _theta_c < (nthetas<=0?1:nthetas);
-               _theta += _theta_step, _theta_c++) {
-             emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
-                                          _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
-             bank.push_back(kern);
-         }
+        for ( int _theta_c=0; _theta_c < (nthetas<=0?1:nthetas);
+              _theta += _theta_step, _theta_c++) {
+            emotime::GaborKernel* kern = this->generateGaborKernel(kernelSize,
+                                         _sigma, _theta, _lambda, _gamma, _psi, CV_32F);
+            bank.push_back(kern);
+        }
        }
      }
    }
@@ -277,6 +278,7 @@ namespace emotime {
                  " and apply gabor filter bank"<<std::endl;
       #endif
       resize(image, image, featSize, CV_INTER_AREA);
+      double t0 = timestamp();
       #pragma omp parallel for
       for (unsigned int k = 0; k < bank.size(); k++) {
         emotime::GaborKernel * gk = bank.at(k);
@@ -311,6 +313,7 @@ namespace emotime {
         cv::max(scaled, tmp_dest, tmp_dest);
         #endif
       }
+      cout << " gabor1 " << timestamp() - t0 << " ";
       #ifdef GABOR_SHRINK
       Mat tmp2_dest, thr, opened;
       tmp_dest.convertTo(tmp2_dest,CV_8U);

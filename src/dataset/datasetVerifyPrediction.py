@@ -91,13 +91,17 @@ def parse_times(output):
   output = output.split(" ")
   sumEyes = 0.0
   sumFace = 0.0
+  sumGabor1 = 0.0
   for i in range(len(output)):
     if output[i] == "detectEyes":
       sumEyes += float(output[i+1])
     if output[i] == "detectFace":
       sumFace += float(output[i+1])
+    elif output[i] == "gabor1":
+      sumGabor1 += float(output[i+1])
   print "Seconds to find Eyes: ", sumEyes
   print "Seconds to find Faces: ", sumFace
+  print "Seconds to Gabor Filter image: ", sumGabor1
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
