@@ -263,7 +263,7 @@ namespace emotime {
     vector<pair<string, pair<vector<Emotion>, Classifier*> > > v(detectors_ext.begin(), detectors_ext.end());
     #pragma omp parallel for
     for(int y=0; y<v.size(); y++){
-      pair<string, pair<vector<Emotion>, Classifier*> > p = v[y]
+      pair<string, pair<vector<Emotion>, Classifier*> > p = v[y];
       if (p.second.first.size() != 1) {
         continue;
       }
