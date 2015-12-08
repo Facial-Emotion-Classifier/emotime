@@ -38,7 +38,7 @@ namespace emotime{
     cv::putText(frame, osd2.c_str(), Point(20,100), FONT_HERSHEY_SIMPLEX, 0.7, Scalar::all(255));
 
     Mat emoji;
-    emoji = imread("images/emoji.jpg");
+    emoji = imread("images/emoji.png");
     emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));
 
     // QT only
