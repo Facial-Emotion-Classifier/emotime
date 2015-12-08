@@ -13,6 +13,7 @@
 #include <math.h>
 #include "timer.h"
 #include <iostream>
+#include <omp.h>
 
 using cv::Mat;
 using cv::Point;
@@ -77,6 +78,7 @@ namespace emotime {
     unsigned int maxI=-1;
     int maxArea=-1;
     int area=-1;
+    #pragma omp parallel for
     for (unsigned int i=0;i<faces.size();i++){
       area=faces.at(i).width*faces.at(i).height;
       if (area>maxArea){
@@ -115,6 +117,7 @@ namespace emotime {
     Point tmpe;
     int val2=-1;
     int area=-1;
+    #pragma omp parallel for
     for (unsigned int i=0;i<eyes.size();i++){
       x=eyes.at(i).x;
       y=eyes.at(i).y;
