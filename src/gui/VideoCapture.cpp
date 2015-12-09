@@ -11,6 +11,8 @@ namespace emotime{
 
   VideoCapture::VideoCapture(int deviceID, bool grayScale): ACapture(grayScale) {
     cap.open(deviceID);
+	cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
   }
       
   VideoCapture::VideoCapture(string infile, bool grayScale): ACapture(grayScale) {

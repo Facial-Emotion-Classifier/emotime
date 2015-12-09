@@ -177,8 +177,8 @@ namespace emotime {
     // Scale image for better performance
     Size max_s, curr_s, tgt_s;
     float ratio = 0;    
-    max_s.width = 500;  
-    max_s.height = 500; 
+    max_s.width = 500;
+    max_s.height = 500;
     curr_s.width = imgGray.cols; 
     curr_s.height= imgGray.rows; 
     if(curr_s.width > max_s.width){
