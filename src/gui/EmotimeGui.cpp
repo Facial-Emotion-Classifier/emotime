@@ -57,9 +57,9 @@ namespace emotime{
 
     emoji = imread(path);
     /*emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));*/
-    resize(emoji, emoji, Size(100, 100), 1);
+    resize(emoji, emoji, Size(200, 200), 1);
 	cvtColor(emoji, emoji, CV_BGR2GRAY);
-    emoji.copyTo(frame (Rect(20, 140, 100, 100)));
+    emoji.copyTo(frame (Rect(20, 140, 200, 200)));
 
     // QT only
     //displayOverlay(mainWinTitle.c_str(), osd.c_str(), 2000);
