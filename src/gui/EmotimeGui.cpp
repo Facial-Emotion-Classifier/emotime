@@ -47,7 +47,7 @@ namespace emotime{
     float bestConfidence = numeric_limits<float>::min();
 
     // display all emotions
-    for(std::vector<Pair<Emotion, float>>::iterator it = prediction.begin(); it != prediction.end(); ++it) {
+	for (std::vector <pair<Emotion,float>> ::iterator it = prediction.begin(); it != prediction.end(); ++it) {
       /* std::cout << *it; ... */
       Emotion emo = it->first;
       float confidence = it->second;
