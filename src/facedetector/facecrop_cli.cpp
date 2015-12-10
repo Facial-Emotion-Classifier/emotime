@@ -60,7 +60,6 @@ void banner(){
  *
  */
 int main( int argc, const char* argv[] ){
-	cout << "HELLO";
 	if (argc < 4) {
 		banner();
 		help();

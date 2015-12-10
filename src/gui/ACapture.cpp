@@ -5,6 +5,8 @@
  */
 
 #include "ACapture.h"
+#include <iostream>
+using namespace std;
 
 namespace emotime{
 
@@ -20,6 +22,7 @@ namespace emotime{
     hasNext=extractFrame(frm);
     if (hasNext){
       if (toGrayscale && frm.channels()>2){
+		  cout << "FRAME SIZE: " << frm.size().height << " by " << frm.size().width << endl;
         Mat gray(frm.size(), CV_8UC1);
         cvtColor(frm, gray, CV_BGR2GRAY);
         gray.copyTo(frame);
