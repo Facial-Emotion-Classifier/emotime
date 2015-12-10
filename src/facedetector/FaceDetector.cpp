@@ -35,11 +35,8 @@ using namespace std;
 namespace emotime {
 
   FaceDetector::FaceDetector(std::string face_config_file, std::string eye_config_file){
-    this->cascade_f2 = cascade_f2;
-    this->cascade_f2.load(face_config_file);
-
-    this->cascade_e2 = cascade_e2;
-    this->cascade_e2.load(eye_config_file);
+    this->face_config_file = face_config_file;
+    this->eye_config_file = eye_config_file;
     if (face_config_file.find(std::string("cbcl1"))!=std::string::npos){
       this->faceMinSize=Size(30,30);
     } else {
@@ -70,10 +67,10 @@ namespace emotime {
   }
 
   bool FaceDetector::detectFace(cv::Mat& img, cv::Rect& face) {
-    // cv::gpu::CascadeClassifier_GPU cascade_f2;
-    // cascade_f2.load(this->face_config_file);
+    cv::gpu::CascadeClassifier_GPU cascade_f2;
+    cascade_f2.load(this->face_config_file);
     GpuMat gfaces;
-    assert(!this->cascade_f2.empty());
+    assert(!cascade_f2.empty());
     this->faceMinSize.height = img.rows / 3;
     this->faceMinSize.width = img.cols / 4;
     GpuMat gray_gpu(img);
@@ -81,7 +78,7 @@ namespace emotime {
 
     // Find Faces
     double t0 = timestamp();
-    int detect_num = this->cascade_f2.detectMultiScale(gray_gpu, gfaces, 1.1, 2, this->faceMinSize );
+    int detect_num = cascade_f2.detectMultiScale(gray_gpu, gfaces, 1.1, 2, this->faceMinSize );
     cout << " detectFace " << timestamp() - t0 << " " << endl;
 
     Mat obj_host;
@@ -113,17 +110,17 @@ namespace emotime {
   }
 
   bool FaceDetector::detectEyes(cv::Mat& img, cv::Point& eye1, cv::Point& eye2){
-    // cv::gpu::CascadeClassifier_GPU cascade_e2;
-    // cascade_e2.load(this->eye_config_file);
+    cv::gpu::CascadeClassifier_GPU cascade_e2;
+    cascade_e2.load(this->eye_config_file);
     GpuMat gEyes;
-    assert(!this->cascade_e2.empty());
+    assert(!cascade_e2.empty());
     // Min widths and max width are taken from eyes proportions
     GpuMat gray_gpu(img);
     equalizeHist( img, img );
 
     // Find Eyes
     double t0 = timestamp();
-    int detect_num = this->cascade_e2.detectMultiScale(gray_gpu, gEyes, 1.1, 2,
+    int detect_num = cascade_e2.detectMultiScale(gray_gpu, gEyes, 1.1, 2,
         Size(img.size().width/5, img.size().width/(5*2)));
     cout << " detectEyes " << timestamp() - t0 << " " << endl;
 
