@@ -9,6 +9,9 @@
 
 namespace emotime{
 
+  static const int MIN_EMOJI_SIZE = 100;
+  static const int MAX_EMOJI_SIZE = 200;
+
   EmotimeGui::EmotimeGui(FacePreProcessor* fp, EmoDetector* detect, int fps) :
     EmotimeGui::AGui(new WebcamCapture(true), fp, detect, fps, "Emotime!") {
 
@@ -55,11 +58,14 @@ namespace emotime{
     Mat emoji;
 	  string path = emoToPath(prediction.first, "../src/gui/images/");
 
+    float confidence = prediction.second < 1 ? prediction.second : 1.0f;
+    int frameSize = MIN_EMOJI_SIZE + (int)(confidence * (MAX_EMOJI_SIZE - MIN_EMOJI_SIZE));
+
     emoji = imread(path);
     /*emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));*/
-    resize(emoji, emoji, Size(200, 200), 1);
+    resize(emoji, emoji, Size(frameSize, frameSize), 1);
   	cvtColor(emoji, emoji, CV_BGR2GRAY);
-    emoji.copyTo(frame (Rect(20, 140, 200, 200)));
+    emoji.copyTo(frame (Rect(20, 140, frameSize, frameSize)));
 
     // QT only
     //displayOverlay(mainWinTitle.c_str(), osd.c_str(), 2000);
