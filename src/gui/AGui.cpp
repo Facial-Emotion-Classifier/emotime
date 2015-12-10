@@ -70,8 +70,8 @@ namespace emotime{
     Mat featvector;
     if (capture->nextFrame(frame)) {
       if (preprocessor->preprocess(frame, featvector)) {
-        pair<Emotion, float> prediction = detector->predict(featvector);
-        if (!newFrame(frame, prediction)) {
+        vector<pair<Emotion, float>> predictions = detector->predict(featvector);
+        if (!newFrame(frame, predictions)) {
           return false;
         }
         imshow(mainWinTitle.c_str(), frame);
