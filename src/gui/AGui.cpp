@@ -61,7 +61,7 @@ namespace emotime{
   }
 
   bool AGui::init() {
-    namedWindow(mainWinTitle.c_str(), WINDOW_AUTOSIZE);
+    namedWindow(mainWinTitle.c_str(), WINDOW_NORMAL);
     return true;
   }
 

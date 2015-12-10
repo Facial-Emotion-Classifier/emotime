@@ -9,24 +9,34 @@
  *
  */
 
+#include "timer.h"
 #include "FaceDetector.h"
 #include <math.h>
-#include "timer.h"
 #include <iostream>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/gpu/gpu.hpp>
 
 using cv::Mat;
 using cv::Point;
 using cv::Size;
 using cv::Rect;
-using cv::CascadeClassifier;
 using namespace std;
+using cv::gpu::CascadeClassifier_GPU;
 
 using std::string;
 using std::vector;
+using namespace std;
 
 namespace emotime {
 
   FaceDetector::FaceDetector(std::string face_config_file, std::string eye_config_file){
+    this->face_config_file = face_config_file;
+    this->eye_config_file = eye_config_file;
     if (face_config_file.find(std::string("cbcl1"))!=std::string::npos){
       this->faceMinSize=Size(30,30);
     } else {
@@ -71,19 +81,20 @@ namespace emotime {
     int detect_num = cascade_f2.detectMultiScale(gray_gpu, gfaces, 1.1, 2, this->faceMinSize );
     cout << " detectFace " << timestamp() - t0 << " " << endl;
 
-    double t0 = timestamp();
-    cascade_f.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, this->faceMinSize );
-    cout << " detectFace " << timestamp() - t0 << " " << endl;
+    Mat obj_host;
+    gfaces.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
+    Rect* shrekt = obj_host.ptr<Rect>();
+    //cout << "Faces Found: " << detect_num << endl;
 
-    if (faces.size() == 0){
+    if (detect_num == 0){
       return false;
     }
     // Pick the face with maximum area
     unsigned int maxI=-1;
     int maxArea=-1;
     int area=-1;
-    for (unsigned int i=0;i<faces.size();i++){
-      area=faces.at(i).width*faces.at(i).height;
+    for (unsigned int i=0;i<detect_num;i++){
+      area=shrekt[i].width*shrekt[i].height;
       if (area>maxArea){
         maxI=i;
         maxArea=area;
@@ -104,7 +115,8 @@ namespace emotime {
     GpuMat gEyes;
     assert(!cascade_e2.empty());
     // Min widths and max width are taken from eyes proportions
-
+    GpuMat gray_gpu(img);
+    equalizeHist( img, img );
 
     // Find Eyes
     double t0 = timestamp();
@@ -112,11 +124,15 @@ namespace emotime {
         Size(img.size().width/5, img.size().width/(5*2)));
     cout << " detectEyes " << timestamp() - t0 << " " << endl;
 
-    if (eyes.size() < 2) {
-      eyes.clear();
+
+    Mat obj_host;
+    gEyes.colRange(0, detect_num).download(obj_host);  // retrieve results from GPU
+    //cout << "Number of eyes detected: " << detect_num << endl;
+    Rect* demEyesDoRoll = obj_host.ptr<Rect>();
+
+    if (detect_num < 2) {
       return false;
     }
-
     // Pick eyes with maximum area
     int val1=-1;
     int tmp=-1;
@@ -124,12 +140,12 @@ namespace emotime {
     Point tmpe;
     int val2=-1;
     int area=-1;
-    for (unsigned int i=0;i<eyes.size();i++){
-      x=eyes.at(i).x;
-      y=eyes.at(i).y;
-      w=eyes.at(i).width;
-      h=eyes.at(i).height;
-      area=eyes.at(i).width*eyes.at(i).height;
+    for (unsigned int i=0;i<detect_num;i++){
+      x=demEyesDoRoll[i].x;
+      y=demEyesDoRoll[i].y;
+      w=demEyesDoRoll[i].width;
+      h=demEyesDoRoll[i].height;
+      area=demEyesDoRoll[i].width*demEyesDoRoll[i].height;
       if (area>val1 && val1>val2){
         tmp=val1;
         tmpe.x=eye1.x;
@@ -187,8 +203,8 @@ namespace emotime {
     // Scale image for better performance
     Size max_s, curr_s, tgt_s;
     float ratio = 0;    
-    max_s.width = 500;
-    max_s.height = 500;
+    max_s.width = 500;  
+    max_s.height = 500; 
     curr_s.width = imgGray.cols; 
     curr_s.height= imgGray.rows; 
     if(curr_s.width > max_s.width){
