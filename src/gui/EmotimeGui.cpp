@@ -53,12 +53,12 @@ namespace emotime{
     cv::putText(frame, osd2.c_str(), Point(20,100), FONT_HERSHEY_SIMPLEX, 0.7, Scalar::all(255));
 
     Mat emoji;
-	string path = emoToPath(prediction.first, "../src/gui/images/");
+	  string path = emoToPath(prediction.first, "../src/gui/images/");
 
     emoji = imread(path);
     /*emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));*/
     resize(emoji, emoji, Size(200, 200), 1);
-	cvtColor(emoji, emoji, CV_BGR2GRAY);
+  	cvtColor(emoji, emoji, CV_BGR2GRAY);
     emoji.copyTo(frame (Rect(20, 140, 200, 200)));
 
     // QT only
