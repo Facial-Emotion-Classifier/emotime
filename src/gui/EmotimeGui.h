@@ -58,7 +58,7 @@ namespace emotime{
        *
        *  @returns Always returns true
        */
-      bool newFrame(Mat& frame, pair<Emotion, float> prediction);
+      bool newFrame(Mat& frame, vector<pair<Emotion, float>> prediction);
 
     private:
 

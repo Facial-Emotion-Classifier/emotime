@@ -144,13 +144,22 @@ namespace emotime {
       std::pair<Emotion, float> predictMayorityOneVsAll(cv::Mat& frame);
 
       /**
-       * @brief Apply the default prediction method
+       * @brief           Apply the default prediction method
        *
-       * @param[in] frame The image to predict
+       * @param[in]       frame The image to predict
        *
-       * @return The predicted emotion
+       * @return          The predicted emotion
        */
       virtual std::pair<Emotion, float> predict(cv::Mat& frame);
+
+      /**
+       * @brief           Apply the default prediction method
+       *
+       * @param[in]       frame The image to predict
+       * 
+       * @return          A vector of emotion, confidence pairs
+       */
+      virtual std::vector<std::pair<Emotion, float>> EmoDetector::predictAll(cv::Mat& frame)
 
     protected:
 

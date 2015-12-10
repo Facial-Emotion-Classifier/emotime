@@ -325,8 +325,43 @@ namespace emotime {
     return max_pair;
   }
 
+  vector<pair<Emotion, float>> EmoDetector::predictAll(cv::Mat& frame) {
+    map<Emotion,float> votes;
+
+    if (detectors_ext.size() == 0) {
+      return make_pair(UNKNOWN, 0.0f);
+    }
+
+    vector<pair<string, pair<vector<Emotion>, Classifier*> > > v(detectors_ext.begin(), detectors_ext.end());
+    #pragma omp parallel for
+    for(int y=0; y<v.size(); y++){
+      pair<string, pair<vector<Emotion>, Classifier*> > p = v[y];
+      if (p.second.first.size() != 1) {
+        continue;
+      }
+      Emotion emo = p.second.first[0];
+      Classifier* cl = p.second.second;
+
+      float prediction = cl->predict(frame);
+
+      map<Emotion, float>::iterator it = votes.find(emo);
+      if (it == votes.end()) {
+        votes.insert(make_pair(emo, prediction));
+      } else {
+        it->second+=prediction;
+      }
+    }
+
+    vector<pair<Emotion, float>> emotions;
+    for (map<Emotion, float>::iterator ii = votes.begin(); ii != votes.end(); ++ii) {
+      emotions.push_back(ii);
+    }
+
+    return emotions;
+  }
+
   pair<Emotion, float> EmoDetector::predict(cv::Mat& frame) {
     return predictMayorityOneVsAll(frame);
   }
-  
+
 }
