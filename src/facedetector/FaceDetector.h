@@ -127,3 +127,4 @@ namespace emotime {
 } /* namespace facecrop */
 
 #endif /* FACEDETECTOR_H_ */
+
