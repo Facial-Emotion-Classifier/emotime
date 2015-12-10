@@ -58,8 +58,11 @@ namespace emotime{
     Mat emoji;
 	  string path = emoToPath(prediction.first, "../src/gui/images/");
 
-    float confidence = prediction.second < 1 ? prediction.second : 1.0f;
-    int frameSize = MIN_EMOJI_SIZE + (int)(confidence * (MAX_EMOJI_SIZE - MIN_EMOJI_SIZE));
+    float confidence = min(prediction.second, 15.0f);
+    int frameSize = MIN_EMOJI_SIZE + (int)(confidence / 15.0f * (MAX_EMOJI_SIZE - MIN_EMOJI_SIZE));
+
+    std::cout << "printing frame size " << frameSize << "\n" << std::flush;
+    std::cout << "printing confidence " << prediction.second << "\n" << std::flush;
 
     emoji = imread(path);
     /*emoji.copyTo(frame.rowRange(150, 250).colRange(20, 120));*/
