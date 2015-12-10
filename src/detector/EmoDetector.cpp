@@ -329,4 +329,5 @@ namespace emotime {
   pair<Emotion, float> EmoDetector::predict(cv::Mat& frame) {
     return predictMayorityOneVsAll(frame);
   }
+  
 }
