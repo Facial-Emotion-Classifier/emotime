@@ -284,7 +284,7 @@ namespace emotime {
     //   Emotion emo = ii->second.first[0];
     //   Classifier* cl = ii->second.second;
 
-    //   float prediction = cl->predict(frame);
+    //   float prediction = cl->predict(frame); 
 
     //   map<Emotion, float>::iterator it = votes.find(emo);
     //   if (it == votes.end()) {

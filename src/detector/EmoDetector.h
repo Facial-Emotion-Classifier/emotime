@@ -159,7 +159,7 @@ namespace emotime {
        * 
        * @return          A vector of emotion, confidence pairs
        */
-      virtual std::vector<std::pair<Emotion, float>> EmoDetector::predictAll(cv::Mat& frame)
+      virtual std::vector<std::pair<Emotion, float>> predictAll(cv::Mat& frame);
 
     protected:
 
