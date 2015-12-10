@@ -23,6 +23,7 @@
 #include <utility>
 #include <map>
 #include <iostream>
+#include "timer.h"
 
 using namespace cv;
 using namespace emotime;
@@ -117,8 +118,10 @@ int main(int argc, const char *argv[]) {
       preprocessor = new FacePreProcessor(config, size.width, size.height,
           nwidths, nlambdas, nthetas);
     } else {
+      double t1 = timestamp();
       preprocessor = new FacePreProcessor(config, config_e, size.width,
           size.height, nwidths, nlambdas, nthetas);
+      cout << " FacePreProcessor: " << timestamp() - t1 << " ";
     }
 
     if (method == "svm") {

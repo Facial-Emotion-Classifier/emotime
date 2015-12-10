@@ -94,6 +94,7 @@ def parse_times(output):
   sumFace = 0.0
   sumGabor1 = 0.0
   sumpredict = 0.0
+  sumpreproc = 0.0
   for i in range(len(output)):
     if output[i] == "detectEyes":
       sumEyes += float(output[i+1])
@@ -103,10 +104,14 @@ def parse_times(output):
       sumGabor1 += float(output[i+1])
     if output[i] == "predict":
       sumpredict += float(output[i+1])
+    if output[i] == "FacePreProcessor:":
+      sumpreproc += float(output[i+1])
   print "Seconds to find Eyes: ", sumEyes
   print "Seconds to find Faces: ", sumFace
   print "Seconds to Gabor Filter image: ", sumGabor1
   print "Seconds to predict emotion: ", sumpredict
+  print "Seconds to create GaborBank: ", sumpreproc
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

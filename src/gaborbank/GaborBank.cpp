@@ -189,8 +189,14 @@ namespace emotime {
     int fwidth = minfwidth;
     
     double _theta_step = (kGaborThetaMax - kGaborThetaMin)/((double)(nthetas<=0?1:nthetas));
+
+    double inc = (double)(nwidths<=0?1:nwidths);
+
+    omp_set_num_threads(4);
+
+    #pragma omp parallel for
     for (fwidth = minfwidth; fwidth < maxfwidth; fwidth += (int)
-        ((maxfwidth-minfwidth)/((double)(nwidths<=0?1:nwidths)))) {
+        ((maxfwidth-minfwidth)/(inc))) {
       cv::Size kernelSize(fwidth, fwidth);
       //for (_sigma = kGaborESigmaMin; _sigma < kGaborESigmaMax;
       //    _sigma += (kGaborESigmaMax-kGaborESigmaMin)/((double)(nwidths<=0?1:nwidths))) {
@@ -223,6 +229,7 @@ namespace emotime {
             bank.push_back(kern);
         }
        }
+      inc = (double)(nwidths<=0?1:nwidths);
      }
    }
 
@@ -281,6 +288,10 @@ namespace emotime {
                  " and apply gabor filter bank"<<std::endl;
       #endif
       resize(image, image, featSize, CV_INTER_AREA);
+
+      //int nt = omp_get_num_threads();
+      omp_set_num_threads(16);
+
       double t0 = timestamp();
       #pragma omp parallel for
       for (unsigned int k = 0; k < bank.size(); k++) {

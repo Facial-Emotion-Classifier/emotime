@@ -1,0 +1,81 @@
+16
+Benchmark Time:  12.3787279129
+Seconds to find Eyes:  2.05491435
+Seconds to find Faces:  1.69656809
+Seconds to Gabor Filter image:  0.38315791
+Seconds to predict emotion:  0.115164748
+Seconds to create GaborBank:  0.4156752
+
+15
+Benchmark Time:  13.0481030941
+Seconds to find Eyes:  2.20015457
+Seconds to find Faces:  1.83887226
+Seconds to Gabor Filter image:  0.39664502
+Seconds to predict emotion:  0.130553959
+Seconds to create GaborBank:  0.5979743
+
+14
+Benchmark Time:  12.7041730881
+Seconds to find Eyes:  2.12441732
+Seconds to find Faces:  1.76743387
+Seconds to Gabor Filter image:  0.42172933
+Seconds to predict emotion:  0.124609954
+Seconds to create GaborBank:  0.5268459
+
+13
+Benchmark Time:  12.8371310234
+Seconds to find Eyes:  2.12429684
+Seconds to find Faces:  1.76275056
+Seconds to Gabor Filter image:  0.46526605
+Seconds to predict emotion:  0.11353398
+Seconds to create GaborBank:  0.571639
+
+
+11
+Benchmark Time:  12.7632849216
+Seconds to find Eyes:  2.11289487
+Seconds to find Faces:  1.75311721
+Seconds to Gabor Filter image:  0.49602962
+Seconds to predict emotion:  0.130894177
+Seconds to create GaborBank:  0.5716645
+
+9
+Benchmark Time:  12.4862360954
+Seconds to find Eyes:  2.13599933
+Seconds to find Faces:  1.7829947
+Seconds to Gabor Filter image:  0.48779721
+Seconds to predict emotion:  0.148183822
+Seconds to create GaborBank:  0.5401205
+
+7
+Benchmark Time:  12.2968850136
+Seconds to find Eyes:  2.11080685
+Seconds to find Faces:  1.7456304
+Seconds to Gabor Filter image:  0.45675839
+Seconds to predict emotion:  0.129886149
+Seconds to create GaborBank:  0.4813418
+
+5
+Benchmark Time:  12.169260025
+Seconds to find Eyes:  2.09573621
+Seconds to find Faces:  1.73380235
+Seconds to Gabor Filter image:  0.54477044
+Seconds to predict emotion:  0.184473494
+Seconds to create GaborBank:  0.4669926
+
+3
+Benchmark Time:  12.8085360527
+Seconds to find Eyes:  2.16228172
+Seconds to find Faces:  1.80813517
+Seconds to Gabor Filter image:  0.89944847
+Seconds to predict emotion:  0.29208807
+Seconds to create GaborBank:  0.4468172
+
+1 serial
+Benchmark Time:  12.5921788216
+Seconds to find Eyes:  2.05625069
+Seconds to find Faces:  1.69330875
+Seconds to Gabor Filter image:  0.90578358
+Seconds to predict emotion:  0.24635532
+Seconds to create GaborBank:  0.5202546
+
